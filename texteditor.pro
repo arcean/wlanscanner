@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     filemodel.cpp \
     cell.cpp \
     editorpage.cpp \
-    mlistitemcreator.cpp
+    mlistitemcreator.cpp \
+    aboutdialog.cpp
 
 HEADERS  += \
     mainpage.h \
@@ -24,7 +25,8 @@ HEADERS  += \
     cell.h \
     editorpage.h \
     viewHeader.h \
-    mlistitemcreator.h
+    mlistitemcreator.h \
+    aboutdialog.h
 
 FORMS    +=
 
@@ -67,6 +69,7 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/copyright \
     qtc_packaging/debian_harmattan/control \
     qtc_packaging/debian_harmattan/compat \
-    qtc_packaging/debian_harmattan/changelog
+    qtc_packaging/debian_harmattan/changelog \
+    data/texteditor.png
 
 RESOURCES +=

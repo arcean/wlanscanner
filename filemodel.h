@@ -4,6 +4,7 @@
 #include <QAbstractListModel>
 #include <QList>
 #include <MAbstractItemModel>
+#include <QDateTime>
 
 class FileModel : public MAbstractItemModel
 {
@@ -27,9 +28,11 @@ class FileModel : public MAbstractItemModel
  private:
     int countFiles();
     QString getTextFromFile(int position);
+    QDateTime getModificationDate(int position);
 
     int numFiles;
     QList<QString> filesData;
+    QList<QDateTime> lastModification;
 
 };
 

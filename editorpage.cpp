@@ -5,7 +5,6 @@
 #include <MLabel>
 #include <MRichTextEdit>
 #include <MAction>
-#include <MBasicSheetHeader>
 #include <QDateTime>
 #include <QDir>
 #include <QDebug>
@@ -18,7 +17,8 @@ EditorPage::EditorPage(QGraphicsItem *parent)
     /* Sheet header */
     MBasicSheetHeader *sheetHeader = new MBasicSheetHeader;
 
-    sheetHeader->setPositiveAction(new QAction("Save", sheetHeader));
+    saveAction = new QAction("Save", sheetHeader);
+    sheetHeader->setPositiveAction(saveAction);
     sheetHeader->setNegativeAction(new QAction("Cancel", sheetHeader));
 
     setHeaderWidget(sheetHeader);
@@ -39,8 +39,18 @@ EditorPage::EditorPage(QGraphicsItem *parent)
     /////////////////////////////////////////////////// SIGNALS
     connect(sheetHeader->negativeAction(), SIGNAL(triggered()), SLOT(processDialogRejected()));
     connect(sheetHeader->positiveAction(), SIGNAL(triggered()), SLOT(processDialogAccepted()));
+    connect(editor, SIGNAL(textChanged()), this, SLOT(enableSaveButton()));
 
     /////////////////////////////////////////////////// OTHER
+    // Disable "Save" button
+    saveAction->setDisabled(true);
+}
+
+void EditorPage::enableSaveButton()
+{
+    bool disable = editor->text().length() > 0 ? false : true;
+
+    saveAction->setDisabled(disable);
 }
 
 void EditorPage::processDialogRejected()
@@ -50,7 +60,6 @@ void EditorPage::processDialogRejected()
 
 void EditorPage::processDialogAccepted()
 {
-    qDebug() << "FN:" << getNewFilename();
     if (editor->text().length() > 0)
         writeToFile();
 

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <MSheet>
 #include <MRichTextEdit>
+#include <MBasicSheetHeader>
 
 class EditorPage : public MSheet
 {
@@ -21,11 +22,13 @@ public slots:
 private slots:
     void processDialogRejected();
     void processDialogAccepted();
+    void enableSaveButton();
 
 private:
     QString getNewFilename();
     void writeToFile();
 
+    QAction *saveAction;
     MRichTextEdit *editor;
     // Current filename
     QString fileName;

@@ -10,6 +10,7 @@ FileModel::FileModel(QObject *parent)
 
     for (int i = 0; i < numFiles; i++) {
         filesData.append(getTextFromFile(i));
+        lastModification.append(getModificationDate(i));
     }
 }
 
@@ -33,6 +34,22 @@ int FileModel::countFiles()
     QFileInfoList fileList = files.entryInfoList(QDir::Files, QDir::Time);
 
     return fileList.length();
+}
+
+QDateTime FileModel::getModificationDate(int position)
+{
+    QDir files("/home/user/MyDocs/texteditor/");
+    QFileInfoList fileList = files.entryInfoList(QDir::Files, QDir::Time);
+    int fileListLength = fileList.length();
+
+    if (position >= fileListLength || position < 0) {
+        qDebug() << "[E]: No such file:" << position;
+        return QDateTime();
+    }
+
+    QFileInfo fileInfo (fileList.at(position).filePath());
+
+    return fileInfo.lastModified();
 }
 
 QString FileModel::getTextFromFile(int position)
@@ -59,7 +76,7 @@ QString FileModel::getTextFromFile(int position)
         line += in.readLine();
         //line += "\n";
 
-        if (line.length() > 2100) {
+        if (line.length() > 900) {
             qDebug() << "break";
             break;
         }
@@ -111,6 +128,8 @@ QVariant FileModel::itemData(int row, int group, int role) const
         QStringList rowData;
         qDebug() << "index:" << row;
         rowData << filesData.at(row);
+        // Convert QDateTime to QString e.g. 17 may 2012
+        rowData << lastModification.at(row).toString("dd MMMM yyyy");
         return QVariant(rowData);
     }
 
@@ -124,25 +143,24 @@ bool FileModel::insertRows(int row, int count, const QModelIndex &parent)
         return true; // Successfully added 0 rows.
 
     QList<QString> data = filesData;
+    QList<QDateTime> data2 = lastModification;
     QString entry;
+    QDateTime modification;
 
-    for (int i = row; i < row+count; i++) {
+    for (int i = row; i < row + count; i++) {
         entry = getTextFromFile(i);
+        modification = getModificationDate(i);
 
         if (!entry.isEmpty())
             data.insert(i, entry);
-    }
 
-    QStringList entriesList;
-
-    foreach (QString entry, data) {
-        //Q_ASSERT(entry);
-        entriesList.prepend(entry);
-    }
+        data2.insert(i, modification);
+    }  
 
     QModelIndex realParent = parent;
     beginInsertRows(realParent, row, row + count - 1, count == 1);
     filesData = data;
+    lastModification = data2;
     endInsertRows();
 
     return true;
@@ -154,14 +172,14 @@ bool FileModel::removeRows(int row, int count, const QModelIndex &parent)
     if (count <= 0)
         return true; //Successfully removed 0 rows.
 
-    int flatRow = row;
-
-    Q_ASSERT(flatRow >= 0);
-    Q_ASSERT(flatRow < filesData.size());
+    Q_ASSERT(row >= 0);
+    Q_ASSERT(row < filesData.size());
+    Q_ASSERT(row < lastModification.size());
 
     beginRemoveRows(parent, row, row + count - 1, count == 1);
     //qDeleteAll(filesData.begin() + flatRow, filesData.begin() + flatRow + count - 1);
-    filesData.removeAt(flatRow);
+    filesData.removeAt(row);
+    lastModification.removeAt(row);
     endRemoveRows();
 
     return true;

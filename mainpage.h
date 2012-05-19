@@ -29,7 +29,6 @@ public slots:
 
 private slots:
     void showAboutDialog();
-    void showQueryDialog();
 
     void showNewEditor();
     void showEditor(const QModelIndex& index);

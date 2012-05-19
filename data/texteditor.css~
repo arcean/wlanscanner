@@ -5,7 +5,7 @@
 
 #title_label {
 font:          $FONT_FAMILY bold 32;
-color:         $COLOR_INVERTED_FOREGROUND;
+color:         $COLOR_ACCENT19;
 margin-top:    $MARGIN_LARGE;
 margin-bottom: $MARGIN_LARGE;
 margin-left:   $INDENT_DEFAULT;
@@ -141,27 +141,10 @@ MApplicationPageStyle#CommonApplicationPageInverted.Landscape {
     margin-right: 0;
 }
 
-MListItemStyle#NotesPopupListItem {
-    background-tiles: ;
-    minimum-size:   -1 100px;
-    preferred-size: -1 100px;
-    maximum-size: -1 160px;
-}
-
-MListItemStyle#NotesPopupListItem:selected {
-    background-tiles: none;
-    background-image: none;
-    background-color: #808080;
-}
-
-MListItemStyle#NotesPopupListItem:pressed {
-    background-tiles: none;
-    background-image: none;
-    background-color: #808080;
-}
-
-#NotesPopupListContentsViewport {
-    preferred-size: -1 -1;
+MBasicListItem#CommonBasicListItem MLabelStyle#CommonSubTitle {
+    margin-top: 12px; 
+    font: $FONT_FAMILY_LIGHT 18px;
+    color: $COLOR_ACCENT19;
 }
 
 MListStyle {
@@ -208,3 +191,10 @@ MTextEditStyle:selected {
     background-image: color19-meegotouch-textedit-background-selected $CORNER_MARGINS;
 }
 
+#ListViewport.Portrait {
+    margin-bottom: $HEIGHT_NAVIGATIONBAR_PORTRAIT;
+}
+
+#ListViewport.Landscape {
+    margin-bottom: $HEIGHT_NAVIGATIONBAR_LANDSCAPE;
+}

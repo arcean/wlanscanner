@@ -26,10 +26,10 @@
 #include <MSceneManager>
 
 #include "mainpage.h"
-#include "cell.h"
 #include "viewHeader.h"
 #include "editorpage.h"
 #include "mlistitemcreator.h"
+#include "aboutdialog.h"
 
 MainPage::MainPage(QGraphicsItem *parent)
     : MApplicationPage(parent)
@@ -78,6 +78,7 @@ void MainPage::createContent()
     viewportWidget->setWidget(form);
     // Create layout policy for the main app viewport
     MLinearLayoutPolicy *viewportLayoutPolicy = new MLinearLayoutPolicy(viewportLayout, Qt::Vertical);
+    viewportLayoutPolicy->setObjectName("ListViewport");
     // Add header to the layout
     portraitPolicy->addItem(header);
     // Add viewportWidget to layout (main layout)
@@ -94,10 +95,17 @@ void MainPage::createContent()
     viewportLayoutPolicy->addItem(list);
 
     /////////////////////////////////////////////////// ACTIONS
-    // Toolbar
-    MAction *addNewNote = new MAction("icon-s-common-add", "Add", this);
+    MAction *dummyAction = new MAction("", "", this);
+    dummyAction->setLocation(MAction::ToolBarLocation);
+    this->addAction(dummyAction);
+
+    MAction *addNewNote = new MAction("icon-m-toolbar-add", "Add", this);
     addNewNote->setLocation(MAction::ToolBarLocation);
     this->addAction(addNewNote);
+
+    MAction *aboutDialog = new MAction("icon-m-toolbar-tag", "Add", this);
+    aboutDialog->setLocation(MAction::ToolBarLocation);
+    this->addAction(aboutDialog);
 
     /////////////////////////////////////////////////// OBJECT MENU
     objectMenu = new MObjectMenu(0);
@@ -111,10 +119,17 @@ void MainPage::createContent()
     connect(list, SIGNAL(itemLongTapped(QModelIndex)), this, SLOT(showObjectMenu(QModelIndex)));
     connect(list, SIGNAL(itemClicked(QModelIndex)), this, SLOT(showEditor(QModelIndex)));
     connect(removeNote, SIGNAL(triggered()), this, SLOT(removeNoteSlot()));
+    connect(aboutDialog, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
 
     /////////////////////////////////////////////////// OTHER
     // Create info banner.
     infoBanner = new MBanner();
+}
+
+void MainPage::showAboutDialog()
+{
+    AboutDialog *aboutDialog = new AboutDialog();
+    aboutDialog->appear(MSceneWindow::DestroyWhenDone);
 }
 
 void MainPage::reloadModel(int oldRow)
@@ -173,64 +188,6 @@ void MainPage::showNewEditor()
     EditorPage *editor = new EditorPage();
     connect(editor, SIGNAL(reloadModel(int)), this, SLOT(reloadModel(int)));
     editor->appear(MSceneWindow::DestroyWhenDismissed);
-}
-
-void MainPage::showQueryDialog()
-{
-    MMessageBox *messageBox = new MMessageBox("", M::YesButton|M::NoButton);
-
-    messageBox->setTitle(qtTrId("Are you sure?"));
-
-    messageBox->setText(qtTrId("Are you sure that you want to <b>uninstall</b> system modification? Your device will be <b><font color=\"#6604BD\">rebooted</font></b>."));
-    QPixmap icon("/opt/videozoom/data/dialog-question.png");
-    messageBox->setIconPixmap(icon);
-
-    messageBox->appear(MSceneWindow::DestroyWhenDone);
-}
-
-void MainPage::showAboutDialog()
-{
-    MDialog *dialog = new MDialog("", M::CloseButton);
-
-    const QChar CopyrightSymbol(0x00a9);
-
-    QString text(qtTrId("Video zoom modification for MeeGo 1.2 Harmattan.\n"));
-    QString copyright_string(QString(CopyrightSymbol) + QString::fromUtf8(" 2012 Tomasz Pieniążek"));
-
-    MLabel *textSystemModal= new MLabel(text + copyright_string);
-    textSystemModal->setStyleName("CommonBodyTextInverted");
-    textSystemModal->setAlignment(Qt::AlignCenter);
-    textSystemModal->setWordWrap(true);
-    textSystemModal->setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-
-    MLabel *title= new MLabel(qtTrId("Video zoom 1.0"));
-    title->setStyleName("title_label");
-    title->setAlignment(Qt::AlignCenter);
-    title->setWordWrap(true);
-    title->setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-
-    QGraphicsLinearLayout *layoutDesc = new QGraphicsLinearLayout(Qt::Horizontal);
-    layoutDesc->addStretch();
-    layoutDesc->addItem(textSystemModal);
-    layoutDesc->addStretch();
-
-    QGraphicsLinearLayout *layoutTitle = new QGraphicsLinearLayout(Qt::Horizontal);
-    layoutTitle->addStretch();
-    layoutTitle->addItem(title);
-    layoutTitle->addStretch();
-
-    MImageWidget *image = new MImageWidget(new QPixmap("/usr/share/icons/hicolor/80x80/apps/videozoom.png"));
-
-    QGraphicsLinearLayout *layout1 = new QGraphicsLinearLayout(Qt::Vertical);
-    layout1->addItem(image);
-    layout1->addItem(layoutTitle);
-    layout1->addItem(layoutDesc);
-    layout1->addStretch();
-
-    dialog->centralWidget()->setLayout(layout1);
-    dialog->setObjectName("about_dialog");
-
-    dialog->appear(MSceneWindow::DestroyWhenDone);
 }
 
 void MainPage::throwMessage(const QString &text)
