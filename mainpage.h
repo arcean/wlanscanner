@@ -35,11 +35,15 @@ private slots:
 
     void reloadModel(int oldRow);
 
-    void removeNoteSlot();
     void showObjectMenu(const QModelIndex &index);
+
+    void deleteAccepted();
+    void showConfirmDeleteDialog();
 
 private:
     void throwMessage(const QString &text);
+
+    void removeNoteSlot();
 
     MBanner *infoBanner;
     MButton *installButton;

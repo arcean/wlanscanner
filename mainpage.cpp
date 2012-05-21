@@ -30,6 +30,7 @@
 #include "editorpage.h"
 #include "mlistitemcreator.h"
 #include "aboutdialog.h"
+#include "confirmdeletedialog.h"
 
 MainPage::MainPage(QGraphicsItem *parent)
     : MApplicationPage(parent)
@@ -118,7 +119,7 @@ void MainPage::createContent()
     connect(addNewNote, SIGNAL(triggered()), this, SLOT(showNewEditor()));
     connect(list, SIGNAL(itemLongTapped(QModelIndex)), this, SLOT(showObjectMenu(QModelIndex)));
     connect(list, SIGNAL(itemClicked(QModelIndex)), this, SLOT(showEditor(QModelIndex)));
-    connect(removeNote, SIGNAL(triggered()), this, SLOT(removeNoteSlot()));
+    connect(removeNote, SIGNAL(triggered()), this, SLOT(showConfirmDeleteDialog()));
     connect(aboutDialog, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
 
     /////////////////////////////////////////////////// OTHER
@@ -154,27 +155,34 @@ void MainPage::showObjectMenu(const QModelIndex &index)
 
 void MainPage::removeNoteSlot()
 {
-    qDebug() << "B0";
     if(longTappedIndex.isValid()) {
-        qDebug() << "Row about to be removed: " << longTappedIndex.row();
         QString filePath = model->getFilePath(longTappedIndex.row());
         QFile file(filePath);
         file.remove();
 
         //list->itemModel()->removeRow(longTappedIndex.row(), longTappedIndex.parent());
-        qDebug() << "B1";
         list->itemModel()->removeRows(longTappedIndex.row(), 1, longTappedIndex.parent());
-        qDebug() << "B2";
         longTappedIndex = QModelIndex();
-        qDebug() << "B3";
     }
-    qDebug() << "B4";
+}
+
+void MainPage::deleteAccepted()
+{
+    removeNoteSlot();
+}
+
+void MainPage::showConfirmDeleteDialog()
+{
+    ConfirmDeleteDialog *dialog = new ConfirmDeleteDialog();
+
+    connect(dialog, SIGNAL(accepted()), this, SLOT(deleteAccepted()));
+
+    dialog->appear(MSceneWindow::DestroyWhenDone);
 }
 
 void MainPage::showEditor(const QModelIndex& index)
 {
     QString filePath = model->getFilePath(index.row());
-    qDebug() << "filePath" << filePath;
 
     EditorPage *editor = new EditorPage();
     editor->loadFile(filePath, index.row());
