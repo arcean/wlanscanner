@@ -1,7 +1,0 @@
-#!/bin/sh
-
-#copy file
-
-cp $1 $2
-
-exit 0
