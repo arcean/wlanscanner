@@ -13,6 +13,7 @@ public:
     explicit EditorPage(QGraphicsItem *parent = 0);
 
     void loadFile(const QString& filePath, int currentRow);
+    void setFocusOnEditor();
 
 signals:
     void reloadModel(int oldRow);

@@ -16,6 +16,6 @@ ConfirmDeleteDialog::ConfirmDeleteDialog()
     setTitle(qtTrId("Are you sure?"));
     setText(qtTrId("Are you sure that you want to delete this note?"));
 
-    QPixmap icon("/opt/texteditor/data/dialog-question.png");
+    QPixmap icon("/opt/exnote/data/dialog-question.png");
     setIconPixmap(icon);
 }

@@ -48,7 +48,7 @@ MainPage::~MainPage()
 void MainPage::createContent()
 {
     MTheme *theme = MTheme::instance();
-    theme->loadCSS("/opt/texteditor/style/texteditor.css");
+    theme->loadCSS("/opt/exnote/style/exnote.css");
     applicationWindow()->setStyleName("CommonApplicationWindow");
     setStyleName("CommonApplicationPage");
     MLayout *layout = new MLayout(this);
@@ -62,7 +62,7 @@ void MainPage::createContent()
     viewport->setRange(QRectF(0,0,0,0));
 
     ViewHeader *header = new ViewHeader;
-    header->setTitle("__AM__TXT_HTML_EDITOR__");
+    header->setTitle("exNote");
 
     MLinearLayoutPolicy *portraitPolicy = new MLinearLayoutPolicy(layout, Qt::Vertical);
     layout->setPortraitPolicy(portraitPolicy);
@@ -196,6 +196,7 @@ void MainPage::showNewEditor()
     EditorPage *editor = new EditorPage();
     connect(editor, SIGNAL(reloadModel(int)), this, SLOT(reloadModel(int)));
     editor->appear(MSceneWindow::DestroyWhenDismissed);
+    editor->setFocusOnEditor();
 }
 
 void MainPage::throwMessage(const QString &text)

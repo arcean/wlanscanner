@@ -16,7 +16,7 @@ M_EXPORT int main(int argc, char *argv[]){
     MApplication* application = MComponentCache::mApplication(argc, argv);
     application->setOrganizationName("arcean");
     application->setOrganizationDomain("arcean.com");
-    application->setApplicationName("videozoom");
+    application->setApplicationName("exnote");
 
     MApplicationWindow* window = MComponentCache::mApplicationWindow();
     MainPage page;

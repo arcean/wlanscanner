@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-TARGET = texteditor
+TARGET = exnote
 TEMPLATE = app
 
 
@@ -43,25 +43,22 @@ symbian {
 }
 
 contains(MEEGO_EDITION,harmattan) {
-    target.path = /opt/texteditor/bin
+    target.path = /opt/exnote/bin
     INSTALLS += target
 
     icon.path = /usr/share/icons/hicolor/80x80/apps
-    icon.files = data/texteditor.png
+    icon.files = data/exnote.png
 
     desktop.path = /usr/share/applications
-    desktop.files = data/texteditor.desktop
+    desktop.files = data/exnote.desktop
 
-    css.path = /opt/texteditor/style/
-    css.files = data/texteditor.css
+    css.path = /opt/exnote/style/
+    css.files = data/exnote.css
 
-    mod.path = /opt/texteditor/data/
-    mod.files = data/camera.conf
-
-    gfx.path = /opt/texteditor/data/
+    gfx.path = /opt/exnote/data/
     gfx.files = data/dialog-question.png
 
-    INSTALLS += icon desktop css gfx mod
+    INSTALLS += icon desktop css gfx
 
 }
 

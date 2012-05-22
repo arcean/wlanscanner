@@ -30,7 +30,7 @@ void FileModel::reload()
 
 int FileModel::countFiles()
 {
-    QDir files("/home/user/MyDocs/texteditor/");
+    QDir files("/home/user/MyDocs/exnote/");
     QFileInfoList fileList = files.entryInfoList(QDir::Files, QDir::Time);
 
     return fileList.length();
@@ -38,7 +38,7 @@ int FileModel::countFiles()
 
 QDateTime FileModel::getModificationDate(int position)
 {
-    QDir files("/home/user/MyDocs/texteditor/");
+    QDir files("/home/user/MyDocs/exnote/");
     QFileInfoList fileList = files.entryInfoList(QDir::Files, QDir::Time);
     int fileListLength = fileList.length();
 
@@ -54,7 +54,7 @@ QDateTime FileModel::getModificationDate(int position)
 
 QString FileModel::getTextFromFile(int position)
 {
-    QDir files("/home/user/MyDocs/texteditor/");
+    QDir files("/home/user/MyDocs/exnote/");
     QFileInfoList fileList = files.entryInfoList(QDir::Files, QDir::Time);
     int fileListLength = fileList.length();
 
@@ -187,7 +187,7 @@ bool FileModel::removeRows(int row, int count, const QModelIndex &parent)
 
 QString FileModel::getFilePath(int index)
 {
-    QDir files("/home/user/MyDocs/texteditor/");
+    QDir files("/home/user/MyDocs/exnote/");
     QFileInfoList fileList = files.entryInfoList(QDir::Files, QDir::Time);
     int fileListLength = fileList.length();
 

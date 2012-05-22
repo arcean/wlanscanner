@@ -46,6 +46,12 @@ EditorPage::EditorPage(QGraphicsItem *parent)
     saveAction->setDisabled(true);
 }
 
+void EditorPage::setFocusOnEditor()
+{
+    // Focus on the editor
+    editor->setFocus(Qt::OtherFocusReason);
+}
+
 void EditorPage::enableSaveButton()
 {
     bool disable = editor->text().length() > 0 ? false : true;
@@ -93,7 +99,7 @@ void EditorPage::writeToFile()
     QString name;
 
     if (fileName.length() <= 0)
-        name = "/home/user/MyDocs/texteditor/" + getNewFilename();
+        name = "/home/user/MyDocs/exnote/" + getNewFilename();
     else
         name = fileName;
 
@@ -113,17 +119,17 @@ void EditorPage::writeToFile()
 
 QString EditorPage::getNewFilename()
 {
-    QDir appDir("/home/user/MyDocs/texteditor/");
+    QDir appDir("/home/user/MyDocs/exnote/");
     bool ready = false;
     int counter = 0;
     QDateTime time = QDateTime::currentDateTime();
     QString baseName = time.toString("dd_mm_yy");
 
     if(!appDir.exists()) {
-        appDir.mkdir("/home/user/MyDocs/texteditor/");
+        appDir.mkdir("/home/user/MyDocs/exnote/");
     }
 
-    QDir::setCurrent("/home/user/MyDocs/texteditor/");
+    QDir::setCurrent("/home/user/MyDocs/exnote/");
     QFile file;
 
     while (!ready) {
