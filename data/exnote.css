@@ -148,11 +148,11 @@ MBasicListItem#CommonBasicListItem MLabelStyle#CommonSubTitle {
     color: $COLOR_ACCENT19;
 }
 
-MListStyle {
+#ListStyle {
     horizontal-separator-object-name: "CommonItemDivider";
 }
 
-MListStyle:selected {
+#ListStyle:selected {
     background-color: #FFFFFF;
 }
 

@@ -88,6 +88,7 @@ void MainPage::createContent()
     /////////////////////////////////////////////////// CONTENT
 
     list = new MList(this);
+    list->setObjectName("ListStyle");
     MListItemCreator *cellCreator = new MListItemCreator;
     list->setCellCreator(cellCreator);
     model = new FileModel();
