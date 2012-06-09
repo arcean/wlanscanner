@@ -23,19 +23,16 @@ EditorPage::EditorPage(QGraphicsItem *parent)
 
     setHeaderWidget(sheetHeader);
 
-    MWidget *centralWidget = new MWidget;
-    MLayout *layout = new MLayout(centralWidget);
+    // Create main app viewport
+    MPannableViewport *viewportWidget = new MPannableViewport;
 
-    MLinearLayoutPolicy* landscapePolicy = new MLinearLayoutPolicy(layout, Qt::Vertical);
-    layout->setPolicy(landscapePolicy);
-
-    this->setCentralWidget(centralWidget);
+    this->setCentralWidget(viewportWidget);
     /////////////////////////////////////////////////// ACTIONS
 
     /////////////////////////////////////////////////// CONTENT
     editor = new MRichTextEdit(MTextEditModel::MultiLine);
 
-    landscapePolicy->addItem(editor);
+    viewportWidget->setWidget(editor);
     /////////////////////////////////////////////////// SIGNALS
     connect(sheetHeader->negativeAction(), SIGNAL(triggered()), SLOT(processDialogRejected()));
     connect(sheetHeader->positiveAction(), SIGNAL(triggered()), SLOT(processDialogAccepted()));
