@@ -1,51 +1,84 @@
-#include <MLayout>
-#include <MLinearLayoutPolicy>
+/***************************************************************************
+**
+** Copyright (C) 2012 Tomasz Pieniążek
+** All rights reserved.
+** Contact: Tomasz Pieniążek <t.pieniazek@gazeta.pl>
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation
+** and appearing in the file LICENSE.LGPL included in the packaging
+** of this file.
+**
+****************************************************************************/
+
+#include <QGraphicsLinearLayout>
+#include <MImageWidget>
+#include <MLabel>
+#include <MImageWidget>
+#include <QDebug>
+
 #include "cell.h"
 
-Cell::Cell(MWidget *parent) :
-    MListItem(parent)
+
+Cell::Cell (QGraphicsWidget *parent)
+    : MBasicListItem(MBasicListItem::TitleWithSubtitle, parent)
 {
-    MLayout *layout = new MLayout;
-    this->setLayout(layout);
-    MLinearLayoutPolicy *portraitPolicy = new MLinearLayoutPolicy(layout, Qt::Vertical);
-    layout->setPortraitPolicy(portraitPolicy);
-    portraitPolicy->setContentsMargins(0, 0, 0, 0);
-    portraitPolicy->setSpacing(0);
-    portraitPolicy->setNotifyWidgetsOfLayoutPositionEnabled(true);
-
-    line1 = new MLabel();
-    line2 = new MLabel();
-    line3 = new MLabel();
-    date = new MLabel();
-
-    line1->setWordWrap(false);
-    line2->setWordWrap(false);
-    line3->setWordWrap(false);
-    date->setWordWrap(false);
-
-    line1->setTextElide(true);
-    line2->setTextElide(true);
-    line3->setTextElide(true);
-    date->setTextElide(true);
-
-    portraitPolicy->addItem(line1);
-    portraitPolicy->addItem(line2);
-    portraitPolicy->addItem(line3);
-    portraitPolicy->addItem(date);
-
-    this->setStyleName("NotesPopupListItem");
+    //setStyleName("CommonPanelInverted");
+    signalStrength = NULL;
 }
 
-void Cell::setLine1(const QString& text)
+Cell::~Cell()
 {
-    line1->setText(text);
 }
 
-void Cell::updateCell(const QModelIndex& index, MWidget * cell) const
+QGraphicsLayout *Cell::createLayout()
 {
-    Cell *contentItem = qobject_cast<Cell *>(cell);
-    QVariant data = index.data(Qt::DisplayRole);
-    QStringList rowData = data.value<QStringList>();
-    contentItem->setLine1(rowData[0]);
-    //contentItem->setSubtitle("rowData[1]");
+    qDebug() << "CREATE CELL";
+    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, this);
+    QGraphicsLinearLayout *text = new QGraphicsLinearLayout(Qt::Vertical);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    //signalStrength = new MImageWidget();
+    layout->addItem(signalStrength);
+    layout->setAlignment(signalStrength, Qt::AlignLeft | Qt::AlignVCenter);
+
+   // titleLabelWidget()->setStyleName("CommonTitleInverted");
+    titleLabelWidget()->setAlignment(Qt::AlignTop);
+    text->addItem(titleLabelWidget());
+    text->setAlignment(titleLabelWidget(), Qt::AlignTop | Qt::AlignLeft);
+
+   // subtitleLabelWidget()->setStyleName("CommonSubTitleInverted");
+    text->addItem(subtitleLabelWidget());
+
+    layout->addItem(text);
+
+    QGraphicsWidget *spacer = new QGraphicsWidget;
+    spacer->setContentsMargins(0, 0, 0, 0);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addItem(spacer);
+
+    image = new MImageWidget("icon-m-common-drilldown-arrow-inverse");
+    layout->addItem(image);
+    layout->setAlignment(image, Qt::AlignVCenter | Qt::AlignLeft);
+
+    return layout;
+}
+
+void Cell::setSignalStrengthImage(QString image)
+{
+    qDebug() << "SET IMAGE";
+
+    if (signalStrength == NULL) {
+        qDebug() << "Creating new MImageWidget";
+        signalStrength = new MImageWidget();
+    }
+    signalStrength->setImage(image);
+}
+
+void Cell::setDisabled(bool disable)
+{
+    setEnabled(!disable);
 }

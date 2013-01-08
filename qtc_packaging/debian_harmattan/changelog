@@ -1,14 +1,4 @@
-exnote (1.0.2) unstable; urgency=low
-  * Bug fixes
-
- -- Tomasz Pieniążek <t.pieniazek@gazeta.pl>  Sat, 09 Jun 2012 21:35:52 +0200
-
-exnote (1.0.1) unstable; urgency=low
-  * UI fixes
-
- -- Tomasz Pieniążek <t.pieniazek@gazeta.pl>  Tue, 29 May 2012 17:28:00 +0200
-
-exnote (1.0.0) unstable; urgency=low
+wlanscanner (0.0.1) unstable; urgency=low
 
   * Public release
 

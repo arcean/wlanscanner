@@ -26,11 +26,10 @@
 #include <MSceneManager>
 
 #include "mainpage.h"
-#include "viewHeader.h"
-#include "editorpage.h"
+#include "viewHeaderWithIcon.h"
 #include "mlistitemcreator.h"
 #include "aboutdialog.h"
-#include "confirmdeletedialog.h"
+#include "networkpage.h"
 
 MainPage::MainPage(QGraphicsItem *parent)
     : MApplicationPage(parent)
@@ -48,7 +47,8 @@ MainPage::~MainPage()
 void MainPage::createContent()
 {
     MTheme *theme = MTheme::instance();
-    theme->loadCSS("/opt/exnote/style/exnote.css");
+    theme->loadCSS("/opt/wlanscanner/style/wlanscanner.css");
+    theme->addPixmapDirectory("/opt/wlanscanner/data/");
     applicationWindow()->setStyleName("CommonApplicationWindow");
     setStyleName("CommonApplicationPage");
     MLayout *layout = new MLayout(this);
@@ -61,8 +61,8 @@ void MainPage::createContent()
     viewport->setAutoRange(false);
     viewport->setRange(QRectF(0,0,0,0));
 
-    ViewHeader *header = new ViewHeader;
-    header->setTitle("exNote");
+    ViewHeaderWithIcon *header = new ViewHeaderWithIcon;
+    header->setTitle("!!_wlanscanner_");
 
     MLinearLayoutPolicy *portraitPolicy = new MLinearLayoutPolicy(layout, Qt::Vertical);
     layout->setPortraitPolicy(portraitPolicy);
@@ -78,7 +78,7 @@ void MainPage::createContent()
     form->setLayout(viewportLayout);
     viewportWidget->setWidget(form);
     // Create layout policy for the main app viewport
-    MLinearLayoutPolicy *viewportLayoutPolicy = new MLinearLayoutPolicy(viewportLayout, Qt::Vertical);
+    viewportLayoutPolicy = new MLinearLayoutPolicy(viewportLayout, Qt::Vertical);
     viewportLayoutPolicy->setObjectName("ListViewport");
     // Add header to the layout
     portraitPolicy->addItem(header);
@@ -91,17 +91,23 @@ void MainPage::createContent()
     list->setObjectName("ListStyle");
     MListItemCreator *cellCreator = new MListItemCreator;
     list->setCellCreator(cellCreator);
-    model = new FileModel();
+    model = new ListModel();
     list->setItemModel(model);
 
-    viewportLayoutPolicy->addItem(list);
+    noResultLabel = new MLabel("No networks found");
+    noResultLabel->setStyleName("CommonEmptyStateTitleInverted");
+    noResultLabel->setWordWrap(true);
+    noResultLabel->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+    isNoResultLabelVisible = true;
+
+    viewportLayoutPolicy->addItem(noResultLabel);
 
     /////////////////////////////////////////////////// ACTIONS
     MAction *dummyAction = new MAction("", "", this);
     dummyAction->setLocation(MAction::ToolBarLocation);
     this->addAction(dummyAction);
 
-    MAction *addNewNote = new MAction("icon-m-toolbar-add", "Add", this);
+    MAction *addNewNote = new MAction("icon-m-toolbar-addAA", "Add", this);
     addNewNote->setLocation(MAction::ToolBarLocation);
     this->addAction(addNewNote);
 
@@ -117,21 +123,99 @@ void MainPage::createContent()
     objectMenu->addAction(removeNote);
 
     /////////////////////////////////////////////////// SIGNALS
-    connect(addNewNote, SIGNAL(triggered()), this, SLOT(showNewEditor()));
-    connect(list, SIGNAL(itemLongTapped(QModelIndex)), this, SLOT(showObjectMenu(QModelIndex)));
-    connect(list, SIGNAL(itemClicked(QModelIndex)), this, SLOT(showEditor(QModelIndex)));
-    connect(removeNote, SIGNAL(triggered()), this, SLOT(showConfirmDeleteDialog()));
     connect(aboutDialog, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
+    connect(header, SIGNAL(buttonClicked()), this, SLOT(scan()));
+    connect(list, SIGNAL(itemClicked(QModelIndex)), this, SLOT(showNetworkPage(QModelIndex)));
 
     /////////////////////////////////////////////////// OTHER
     // Create info banner.
     infoBanner = new MBanner();
+
+    // Create DbusHandler
+    dbusHandler = new DbusHandler();
+    connect(dbusHandler, SIGNAL(scanComplete(QList<ScanResult>)), model, SLOT(reload(QList<ScanResult>)));
+    connect(dbusHandler, SIGNAL(scanComplete(QList<ScanResult>)), this, SLOT(scanComplete(QList<ScanResult>)));
+
+    // Create scanTimer
+    scanTimer = new QTimer();
+    scanTimer->setInterval(5000);
+    connect(scanTimer, SIGNAL(timeout()), this, SLOT(scan()));
+
+    //! Start scanning
+    dbusHandler->Scan();
+}
+
+void MainPage::showNetworkPage(const QModelIndex& index)
+{
+    int number = index.row();
+
+    if (number < 0 || number > networks.count()) {
+        qDebug() << "showNetworkPage fails with index" << number;
+        return;
+    }
+
+    ScanResult network = networks.at(number);
+
+    NetworkPage *networkPage = new NetworkPage(&network);
+    networkPage->appear(MSceneWindow::DestroyWhenDone);
 }
 
 void MainPage::showAboutDialog()
 {
     AboutDialog *aboutDialog = new AboutDialog();
     aboutDialog->appear(MSceneWindow::DestroyWhenDone);
+}
+
+void MainPage::scan()
+{
+    qDebug() << "Timeout: scanning...";
+    dbusHandler->Scan();
+}
+
+void MainPage::scanComplete(const QList<ScanResult> &networks)
+{
+    // Update networks list
+    this->networks = networks;
+   // if (model)
+    //    delete model;
+
+    // Show and hide noResultLabel and list
+    if (networks.count() == 0 && !isNoResultLabelVisible) {
+        qDebug() << "CATCH 1";
+        viewportLayoutPolicy->removeItem(list);
+        viewportLayoutPolicy->addItem(noResultLabel);
+        isNoResultLabelVisible = true;
+
+       /* if(list->model() != NULL)
+            delete model;*/
+        qDebug() << "CATCH 1 after";
+    }
+    else if (networks.count() > 0 && isNoResultLabelVisible) {
+        qDebug() << "CATCH 2";
+        viewportLayoutPolicy->removeItem(noResultLabel);
+        viewportLayoutPolicy->addItem(list);
+        isNoResultLabelVisible = false;
+
+      //  model = new ListModel(networks);
+       /* list->setItemModel(model);
+        qDebug() << "CATCH 2 after";*/
+    }
+
+    // Remove all rows
+    list->itemModel()->removeRows(0, list->itemModel()->rowCount());
+    // Insert new rows
+    list->itemModel()->insertRows(0, networks.count(), QModelIndex());
+
+    // Create new model for the list
+   /* if (networks.count() > 0) {
+        if(list->model() != NULL)
+            delete model;
+        model = new ListModel(networks);
+        list->setItemModel(model);
+    }*/
+
+    // Start scanTimer
+    scanTimer->start();
 }
 
 void MainPage::reloadModel(int oldRow)
@@ -152,52 +236,6 @@ void MainPage::showObjectMenu(const QModelIndex &index)
     // Show objectMenu
     sceneManager()->appearSceneWindow(objectMenu);
     longTappedIndex = index;
-}
-
-void MainPage::removeNoteSlot()
-{
-    if(longTappedIndex.isValid()) {
-        QString filePath = model->getFilePath(longTappedIndex.row());
-        QFile file(filePath);
-        file.remove();
-
-        //list->itemModel()->removeRow(longTappedIndex.row(), longTappedIndex.parent());
-        list->itemModel()->removeRows(longTappedIndex.row(), 1, longTappedIndex.parent());
-        longTappedIndex = QModelIndex();
-    }
-}
-
-void MainPage::deleteAccepted()
-{
-    removeNoteSlot();
-}
-
-void MainPage::showConfirmDeleteDialog()
-{
-    ConfirmDeleteDialog *dialog = new ConfirmDeleteDialog();
-
-    connect(dialog, SIGNAL(accepted()), this, SLOT(deleteAccepted()));
-
-    dialog->appear(MSceneWindow::DestroyWhenDone);
-}
-
-void MainPage::showEditor(const QModelIndex& index)
-{
-    QString filePath = model->getFilePath(index.row());
-
-    EditorPage *editor = new EditorPage();
-    editor->loadFile(filePath, index.row());
-
-    connect(editor, SIGNAL(reloadModel(int)), this, SLOT(reloadModel(int)));
-    editor->appear(MSceneWindow::DestroyWhenDismissed);
-}
-
-void MainPage::showNewEditor()
-{
-    EditorPage *editor = new EditorPage();
-    connect(editor, SIGNAL(reloadModel(int)), this, SLOT(reloadModel(int)));
-    editor->appear(MSceneWindow::DestroyWhenDismissed);
-    editor->setFocusOnEditor();
 }
 
 void MainPage::throwMessage(const QString &text)

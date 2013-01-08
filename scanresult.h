@@ -11,31 +11,31 @@
 ** of this file.
 **
 ****************************************************************************/
-#ifndef CELL_H
-#define CELL_H
 
-#include <MBasicListItem>
+#ifndef SCANRESULT_H
+#define SCANRESULT_H
 
-class MImageWidget;
+#include <QString>
 
-class Cell: public MBasicListItem
-{
-    Q_OBJECT
+class ScanResult {
+
 public:
-    Cell(QGraphicsWidget* parent = 0);
-    ~Cell ();
+    ScanResult(QString essid, QString address, QString signalLevel, QString channel, QString capbits, QString encryption);
 
-    void setSignalStrengthImage(QString image);
-    void setDisabled(bool disable);
-
-
-protected:
-    virtual QGraphicsLayout *createLayout();
+    QString getEssid() const;
+    QString getAddress() const;
+    QString getSignalLevel() const;
+    QString getChannel() const;
+    QString getCapbits() const;
+    QString getEncryption() const;
 
 private:
-    MImageWidget *image;
-    MImageWidget *signalStrength;
-
+    QString essid;
+    QString address;
+    QString signalLevel;
+    QString channel;
+    QString capbits;
+    QString encryption;
 };
 
-#endif // CELL_H
+#endif // SCANRESULT_H

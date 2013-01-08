@@ -10,8 +10,11 @@
 #include <MBanner>
 #include <MList>
 #include <MObjectMenu>
+#include <QTimer>
+#include <MLinearLayoutPolicy>
 
-#include "filemodel.h"
+#include "listmodel.h"
+#include "dbushandler.h"
 
 /* To enable debug msgs: */
 /* -output-level debug */
@@ -30,30 +33,32 @@ public slots:
 private slots:
     void showAboutDialog();
 
-    void showNewEditor();
-    void showEditor(const QModelIndex& index);
-
     void reloadModel(int oldRow);
 
     void showObjectMenu(const QModelIndex &index);
+    void showNetworkPage(const QModelIndex& index);
 
-    void deleteAccepted();
-    void showConfirmDeleteDialog();
+    void scan();
+    void scanComplete(const QList<ScanResult> &networks);
 
 private:
     void throwMessage(const QString &text);
 
-    void removeNoteSlot();
-
     MBanner *infoBanner;
-    MButton *installButton;
-    MButton *aboutButton;
 
-    FileModel *model;
+    ListModel *model;
+    DbusHandler *dbusHandler;
+
+    QTimer *scanTimer;
 
     MList *list;
+    MLabel *noResultLabel;
+    bool isNoResultLabelVisible;
+    MLinearLayoutPolicy *viewportLayoutPolicy;
     MObjectMenu *objectMenu;
+
     QModelIndex longTappedIndex;
+    QList<ScanResult> networks;
 
 };
 
